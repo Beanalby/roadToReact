@@ -2,9 +2,13 @@ const welcome = {
   title: "ReactObject",
   greeting: "Hello,",
 }
-const people = ["Alice", "Bob", "Charlie"];
+if(import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    console.clear();
+  })
+}
 
-const list = [
+const listStock = [
   {
     title: 'React',
     url: 'https://reactjs.org/',
@@ -23,17 +27,31 @@ const list = [
   },
 ];
 
-function List() {
+const listMine = [
+  {
+    title: "Another book",
+    url: "https://www.example.com",
+    author: "ME",
+    num_comments: 0,
+    points: 0,
+    objectID: 2,
+  },
+]
+
+function List({name, listParam}) {
   return (
     <div>
-    {list.map(item =>
-      <div key={item.objectID}>
-        <ul>
-          <li>Title: <a href={item.url}>{item.title}</a></li>
-          <li>Author: {item.author}</li>
-          <li>Comments: {item.num_comments}</li>
-          <li>Points: {item.points}</li>
-        </ul>
+    <h3>{name}:</h3>
+    {listParam.map(item =>
+        <div>
+          <div key={item.objectID}>
+          <ul>
+            <li>Title: <a href={item.url}>{item.title}</a></li>
+            <li>Author: {item.author}</li>
+            <li>Comments: {item.num_comments}</li>
+            <li>Points: {item.points}</li>
+          </ul>
+        </div>
       </div>
     )}
     </div>
@@ -50,11 +68,16 @@ function Search() {
 }
 
 function App() {
+  const ComponentTest = () => {
+    return <p className="someclass">Test</p>;
+  }
+  console.log(ComponentTest());
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
       <Search />
-      <List />
+      <List name="Stock list" listParam={listStock}/>
+      <List name="My List" listParam={listMine}/>
     </div>
   )
 }
