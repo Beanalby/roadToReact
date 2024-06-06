@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const welcome = {
   title: "ReactObject",
   greeting: "Hello,",
@@ -27,9 +29,11 @@ const List = ({name, listParam}) => (
 )
 
 const Search = () => {
+  const  [searchTerm, setSearchTerm] = React.useState("");
+
   const handleChange = (event) => {
     console.log("handling change");
-    console.log(event)
+    setSearchTerm(event.target.value)
   }
   const handleBlur = (event) => {
     console.log("handling blur");
@@ -37,6 +41,9 @@ const Search = () => {
   }
   return (
     <div>
+      <p>
+        Searching for <strong>{searchTerm}</strong>
+      </p>
       <label htmlFor="search">Search: </label>
       <input id="search" type="text" onChange={handleChange} onBlur={handleBlur}/>
     </div>
