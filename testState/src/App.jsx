@@ -36,6 +36,25 @@ const filterReducer = (state, action) => {
   }
 }
 
+const Filter = ({ dispatch }) => {
+  const handleShowAll = () =>  {
+    dispatch({type: "SHOW_ALL"});
+  };
+  const  handleShowComplete = () => {
+    dispatch({type: "SHOW_COMPLETE"});
+  };
+  const handleShowIncomplete = () => {
+    dispatch({type: "SHOW_INCOMPLETE"});
+  };
+  return (
+    <div>
+      <button onClick={handleShowAll}>Show All</button>
+      <button onClick={handleShowComplete}>Show Complete</button>
+      <button onClick={handleShowIncomplete}>Show Incomplete</button>
+    </div>
+  )
+}
+
 const todoReducer = (state, action) => {
   switch(action.type) {
     case "DO_TODO":
@@ -64,38 +83,57 @@ const todoReducer = (state, action) => {
       throw new Error(`Unexpected todoReducer action.type ${action.type}`);
   }
 }
-const App = () => {
-  const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
-  const [task, setTask] = useState("");
-  const [filter, dispatchFilter] = useReducer(filterReducer, "ALL");
 
-  const handleShowAll = () =>  {
-    dispatchFilter({type: "SHOW_ALL"});
-  };
-  const  handleShowComplete = () => {
-    dispatchFilter({type: "SHOW_COMPLETE"});
-  };
-  const handleShowIncomplete = () => {
-    dispatchFilter({type: "SHOW_INCOMPLETE"});
-  };
-  const handleChangeInput = event => {
-    setTask(event.target.value);
-  };
-  const handleChangeCheckbox = todo => {
+const TodoList = ({dispatch, todos}) => (
+  <ul>
+    {todos.map(todo => (
+      <TodoItem key={todo.id} dispatch={dispatch} todo={todo} />
+    ))}
+  </ul>
+)
+
+const TodoItem = ({dispatch, todo}) => {
+  const handleChange = todo => {
     console.log(`changing ${todo.id}`)
-    dispatchTodos({
+    dispatch({
       type: todo.complete ? "UNDO_TODO" : "DO_TODO",
       id: todo.id,
     });
   };
+  return (
+    <li key={todo.id}>
+      <input id={`box-${todo.id}`} type="checkbox"
+        checked={todo.complete}
+        onChange={() => handleChange(todo)}
+      />
+      <label htmlFor={`box-${todo.id}`}>{todo.task} - {todo.complete ? "True" : "False"}</label>
+    </li>
+  )
+}
+
+const AddTodo = ({dispatch}) => {
+  const [task, setTask] = useState("");
+
+  const handleChangeInput = event => setTask(event.target.value);
+
   const handleSubmit = event => {
     if(task) {
-      dispatchTodos({type: "ADD_TODO", task, id: uuidv4()});
-      // setTodos(todos.concat({id: uuidv4(), task, complete: false}));
+      dispatch({type: "ADD_TODO", task, id: uuidv4()});
     }
     setTask("");
     event.preventDefault();
   };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" value={task} onChange={handleChangeInput} />
+    </form>
+  )
+}
+
+const App = () => {
+  const [todos, dispatchTodos] = useReducer(todoReducer, initialTodos);
+  const [filter, dispatchFilter] = useReducer(filterReducer, "ALL");
   
   const filteredTodos = todos.filter(todo =>
     filter === "ALL"
@@ -105,25 +143,9 @@ const App = () => {
   
   return (
     <div>
-      <div>
-        <button onClick={handleShowAll}>Show All</button>
-        <button onClick={handleShowComplete}>Show Complete</button>
-        <button onClick={handleShowIncomplete}>Show Incomplete</button>
-      </div>
-      <ul>
-        {filteredTodos.map(todo => (
-          <li key={todo.id}>
-            <input id={`box-${todo.id}`} type="checkbox"
-              checked={todo.complete}
-              onChange={() => handleChangeCheckbox(todo)}
-            />
-            <label htmlFor={`box-${todo.id}`}>{todo.task} - {todo.complete ? "True" : "False"}</label>
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={task} onChange={handleChangeInput} />
-      </form>
+      <Filter dispatch={dispatchFilter} />
+      <TodoList dispatch={dispatchTodos} todos={filteredTodos} />
+      <AddTodo dispatch={dispatchTodos} />
     </div>
   )
 }
