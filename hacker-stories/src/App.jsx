@@ -38,47 +38,39 @@ const listMine = [
   },
 ]
 
-function List({name, listParam}) {
-  return (
-    <div>
-    <h3>{name}:</h3>
-    {listParam.map(item =>
-        <div>
-          <div key={item.objectID}>
-          <ul>
-            <li>Title: <a href={item.url}>{item.title}</a></li>
-            <li>Author: {item.author}</li>
-            <li>Comments: {item.num_comments}</li>
-            <li>Points: {item.points}</li>
-          </ul>
-        </div>
+const List = ({name, listParam}) => (
+  <div>
+  <h3>{name}:</h3>
+  {listParam.map(item =>
+      <div>
+        <div key={item.objectID}>
+        <ul>
+          <li>Title: <a href={item.url}>{item.title}</a></li>
+          <li>Author: {item.author}</li>
+          <li>Comments: {item.num_comments}</li>
+          <li>Points: {item.points}</li>
+        </ul>
       </div>
-    )}
     </div>
-  )
-}
+  )}
+  </div>
+)
 
-function Search() {
-  return (
-    <div>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" />
-    </div>
-  )
-}
 
-function App() {
-  const ComponentTest = () => {
-    return <p className="someclass">Test</p>;
-  }
-  console.log(ComponentTest());
-  return (
-    <div>
-      <h1>{welcome.greeting} {welcome.title}!</h1>
-      <Search />
-      <List name="Stock list" listParam={listStock}/>
-      <List name="My List" listParam={listMine}/>
-    </div>
-  )
-}
+const Search = () => (
+  <div>
+    <label htmlFor="search">Search: </label>
+    <input id="search" type="text" />
+  </div>
+)
+
+const App = () => (
+  <div>
+    <h1>{welcome.greeting} {welcome.title}!</h1>
+    <Search />
+    <List name="Stock list" listParam={listStock}/>
+    <List name="My List" listParam={listMine}/>
+  </div>
+)
+
 export default App;
