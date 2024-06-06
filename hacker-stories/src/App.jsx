@@ -28,22 +28,18 @@ const List = ({name, list}) => (
   </div>
 )
 
-const Search = (props) => {
-
+const Search = ({term, onSearch}) => {
   const handleChange = (event) => {
-    props.onSearch(event.target.value);
-  }
-  const handleBlur = (event) => {
-    console.log("handling blur");
-    console.log(event.target.value)
+    onSearch(event.target.value);
   }
   return (
     <div>
       <p>
-        Searching for <strong>{props.term}</strong>
+        Searching for <strong>{term}</strong>
       </p>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={handleChange} onBlur={handleBlur}/>
+      <input id="search" type="text" value={term}
+        onChange={handleChange} />
     </div>
   );
 }
