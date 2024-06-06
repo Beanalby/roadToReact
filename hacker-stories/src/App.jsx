@@ -19,30 +19,28 @@ const Item = ({item}) => (
   </ul>
 )
 
-const List = ({name, listParam}) => (
+const List = ({name, list}) => (
   <div>
     <h3>{name}:</h3>
-    {listParam.map(item =>
+    {list.map(item =>
       <Item key={item.objectID} item={item} />
     )}
   </div>
 )
 
-const Search = () => {
-  const  [searchTerm, setSearchTerm] = React.useState("");
+const Search = (props) => {
 
   const handleChange = (event) => {
-    console.log("handling change");
-    setSearchTerm(event.target.value)
+    props.onSearch(event.target.value);
   }
   const handleBlur = (event) => {
     console.log("handling blur");
-    console.log(event)
+    console.log(event.target.value)
   }
   return (
     <div>
       <p>
-        Searching for <strong>{searchTerm}</strong>
+        Searching for <strong>{props.term}</strong>
       </p>
       <label htmlFor="search">Search: </label>
       <input id="search" type="text" onChange={handleChange} onBlur={handleBlur}/>
@@ -51,7 +49,8 @@ const Search = () => {
 }
 
 const App = () => {
-  const storiesStock = [
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const stories = [
     {
       title: 'React',
       url: 'https://reactjs.org/',
@@ -69,23 +68,25 @@ const App = () => {
       objectID: 1,
     },
   ];
-  
-  const storiesMine = [
-    {
-      title: "Another book",
-      url: "https://www.example.com",
-      author: "ME",
-      num_comments: 0,
-      points: 0,
-      objectID: 2,
-    },
-  ]
+  const storiesSearched = stories.filter((story) =>
+    story.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  // const storiesMine = [
+  //   {
+  //     title: "Another book",
+  //     url: "https://www.example.com",
+  //     author: "ME",
+  //     num_comments: 0,
+  //     points: 0,
+  //     objectID: 2,
+  //   },
+  // ];
+
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
-      <Search />
-      <List name="Stock list" listParam={storiesStock}/>
-      <List name="My List" listParam={storiesMine}/>
+      <Search term={searchTerm} onSearch={setSearchTerm}/>
+      <List name="Stock list" list={storiesSearched}/>
+      {/* <List name="My List" listParam={storiesMine}/> */}
     </div>
   )
 }
