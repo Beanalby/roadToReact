@@ -1,9 +1,11 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useContext, createContext } from 'react';
 import {v4 as uuidv4} from "uuid";
-
 if (import.meta.hot) {
   import.meta.hot.dispose(() => { console.clear(); });
 }
+
+const TodoContext = createContext(null);
+const FilterContext = createContext(null);
 
 const initialTodos = [
   {
@@ -35,8 +37,8 @@ const filterReducer = (state, action) => {
       throw new Error(`Invalid type ${action.type}`);
   }
 }
-
-const Filter = ({ dispatch }) => {
+const Filter = () => {
+  const dispatch = useContext(FilterContext)
   const handleShowAll = () =>  {
     dispatch({type: "SHOW_ALL"});
   };
@@ -83,16 +85,16 @@ const todoReducer = (state, action) => {
       throw new Error(`Unexpected todoReducer action.type ${action.type}`);
   }
 }
-
-const TodoList = ({dispatch, todos}) => (
+const TodoList = ({todos}) => (
   <ul>
     {todos.map(todo => (
-      <TodoItem key={todo.id} dispatch={dispatch} todo={todo} />
+      <TodoItem key={todo.id} todo={todo} />
     ))}
   </ul>
 )
 
-const TodoItem = ({dispatch, todo}) => {
+const TodoItem = ({todo}) => {
+  const dispatch = useContext(TodoContext);
   const handleChange = todo => {
     console.log(`changing ${todo.id}`)
     dispatch({
@@ -111,7 +113,8 @@ const TodoItem = ({dispatch, todo}) => {
   )
 }
 
-const AddTodo = ({dispatch}) => {
+const AddTodo = () => {
+  const dispatch = useContext(TodoContext);
   const [task, setTask] = useState("");
 
   const handleChangeInput = event => setTask(event.target.value);
@@ -142,11 +145,13 @@ const App = () => {
   );
   
   return (
-    <div>
-      <Filter dispatch={dispatchFilter} />
-      <TodoList dispatch={dispatchTodos} todos={filteredTodos} />
-      <AddTodo dispatch={dispatchTodos} />
-    </div>
+    <TodoContext.Provider value={dispatchTodos}>
+      <FilterContext.Provider value={dispatchFilter}>
+        <Filter />
+        <TodoList todos={filteredTodos} />
+        <AddTodo />
+      </FilterContext.Provider>
+    </TodoContext.Provider>
   )
 }
 export default App
