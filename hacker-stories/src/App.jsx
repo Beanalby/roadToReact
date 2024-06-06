@@ -57,12 +57,22 @@ const List = ({name, listParam}) => (
 )
 
 
-const Search = () => (
-  <div>
-    <label htmlFor="search">Search: </label>
-    <input id="search" type="text" />
-  </div>
-)
+const Search = () => {
+  const handleChange = (event) => {
+    console.log("handling change");
+    console.log(event)
+  }
+  const handleBlur = (event) => {
+    console.log("handling blur");
+    console.log(event)
+  }
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input id="search" type="text" onChange={handleChange} onBlur={handleBlur}/>
+    </div>
+  );
+}
 
 const App = () => (
   <div>
