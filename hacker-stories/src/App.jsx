@@ -10,6 +10,17 @@ if(import.meta.hot) {
   })
 }
 
+const useLocalStorage = (storageKey, fallbackState) => {
+  const stored = localStorage.getItem(storageKey);
+  const [value, setValue] = React.useState(
+     stored ? JSON.parse(stored) : fallbackState
+  );
+  React.useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  }, [value, storageKey]);
+  return [value, setValue];
+}
+
 const Item = ({item}) => (
   <ul>
     <li>Title: <a href={item.url}>{item.title}</a></li>
@@ -28,9 +39,9 @@ const List = ({name, list}) => (
   </div>
 )
 
-const Search = ({term, onSearch}) => {
+const Search = ({term, handleSearch}) => {
   const handleChange = (event) => {
-    onSearch(event.target.value);
+    handleSearch(event.target.value);
   }
   return (
     <div>
@@ -45,7 +56,7 @@ const Search = ({term, onSearch}) => {
 }
 
 const App = () => {
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const stories = [
     {
       title: 'React',
@@ -80,7 +91,7 @@ const App = () => {
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
-      <Search term={searchTerm} onSearch={setSearchTerm}/>
+      <Search term={searchTerm} handleSearch={setSearchTerm}/>
       <List name="Stock list" list={storiesSearched}/>
       {/* <List name="My List" listParam={storiesMine}/> */}
     </div>
