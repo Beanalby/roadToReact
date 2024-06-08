@@ -50,6 +50,7 @@ const App = () => {
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
+
   const initStories = [
     {
       title: 'React',
@@ -68,10 +69,27 @@ const App = () => {
       objectID: 1,
     },
   ];
-  const [stories, setStories] = React.useState(initStories);
+  const getAsyncStories = () =>
+    new Promise((resolve) => 
+      setTimeout(
+        () => resolve({data: { stories: initStories}}),
+        2000
+      )
+    );
+    
+    Promise.resolve({ data: { stories: initStories}});
+  const [stories, setStories] = React.useState([]);
+  React.useEffect(() => {
+    getAsyncStories().then(result => {
+      setStories(result.data.stories);
+    })
+  })
+
+
   const handleDelete = (story) => {
     setStories(stories.filter((s) => s.objectID != story.objectID));
   };
+
   const storiesSearched = stories.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase()));
   // const storiesMine = [
