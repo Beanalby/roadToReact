@@ -39,24 +39,18 @@ const List = ({name, list}) => (
   </div>
 )
 
-const Search = ({term, handleSearch}) => {
-  const handleChange = (event) => {
-    handleSearch(event.target.value);
-  }
-  return (
-    <div>
-      <p>
-        Searching for <strong>{term}</strong>
-      </p>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" value={term}
-        onChange={handleChange} />
-    </div>
-  );
-}
-
+const InputWithLabel = ({id, label, value, type="text", onInputChange }) => (
+  <>
+    <label htmlFor={id}>{label}</label>
+    &nbsp;
+    <input id={id} type={type} value={value} onChange={onInputChange} />
+  </>
+)
 const App = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
   const stories = [
     {
       title: 'React',
@@ -91,7 +85,8 @@ const App = () => {
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
-      <Search term={searchTerm} handleSearch={setSearchTerm}/>
+      <InputWithLabel id="search" label="Search"
+        value={searchTerm} onInputChange={handleSearch} />
       <List name="Stock list" list={storiesSearched}/>
       {/* <List name="My List" listParam={storiesMine}/> */}
     </div>
