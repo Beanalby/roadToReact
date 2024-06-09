@@ -47,6 +47,7 @@ const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
 )
 const App = () => {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isError, setIsError] = React.useState(false);
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -81,10 +82,12 @@ const App = () => {
   const [stories, setStories] = React.useState([]);
   React.useEffect(() => {
     setIsLoading(true);
-    getAsyncStories().then(result => {
+    getAsyncStories()
+     .then(result => {
       setStories(result.data.stories);
-      setIsLoading(false);
-    })
+      setIsLoading(false)
+     })
+    .catch(() => setIsError(true));
   }, [])
 
 
@@ -111,6 +114,8 @@ const App = () => {
         value={searchTerm} onInputChange={handleSearch}>
           <strong>Search</strong>:
       </InputWithLabel>
+      <hr/>
+      {isError && <p>Something went wrong...</p>}
       {isLoading ? (
         <p>Loading...</p>
       ):(
