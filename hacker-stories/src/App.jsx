@@ -46,6 +46,7 @@ const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
   </>
 )
 const App = () => {
+  const [isLoading, setIsLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -69,7 +70,7 @@ const App = () => {
       objectID: 1,
     },
   ];
-  const getAsyncStories = () =>
+  const getAsyncStories = () => 
     new Promise((resolve) => 
       setTimeout(
         () => resolve({data: { stories: initStories}}),
@@ -77,13 +78,14 @@ const App = () => {
       )
     );
     
-    Promise.resolve({ data: { stories: initStories}});
   const [stories, setStories] = React.useState([]);
   React.useEffect(() => {
+    setIsLoading(true);
     getAsyncStories().then(result => {
       setStories(result.data.stories);
+      setIsLoading(false);
     })
-  })
+  }, [])
 
 
   const handleDelete = (story) => {
@@ -102,7 +104,6 @@ const App = () => {
   //     objectID: 2,
   //   },
   // ];
-
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
@@ -110,10 +111,14 @@ const App = () => {
         value={searchTerm} onInputChange={handleSearch}>
           <strong>Search</strong>:
       </InputWithLabel>
-      <List name="Stock list" list={storiesSearched} onDelete={handleDelete}/>
+      {isLoading ? (
+        <p>Loading...</p>
+      ):(
+        <List name="Stock list" list={storiesSearched} onDelete={handleDelete}/>
+      )}
       {/* <List name="My List" listParam={storiesMine}/> */}
     </div>
-  )
+  );
 }
 
 export default App;
