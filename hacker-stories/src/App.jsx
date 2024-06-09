@@ -46,34 +46,9 @@ const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
   </>
 )
 
-const initialStories = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];
-// const getAsyncStories = () =>
-//   new Promise((resolve, reject) => setTimeout(() => reject("Intentional error."), 2000));
-const getAsyncStories = () => 
-new Promise((resolve) => 
-  setTimeout(
-    () => resolve({data: { stories: initialStories}}),
-    2000
-  )
-);
-
+const makeApiEndpoint = (query) => {
+  return `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}`;
+}
 const storyActions = {
   fetchInit: "FETCH_INIT",
   fetchSuccess: "FETCH_SUCCESS",
@@ -133,12 +108,15 @@ const App = () => {
     }
   );
   React.useEffect(() => {
+    if(!searchTerm)
+      return;
     dispatchStories({type: storyActions.fetchInit});
-    getAsyncStories()
+    fetch(makeApiEndpoint(searchTerm))
+      .then((response)=> response.json())
       .then((result) => {
         dispatchStories({
           type: storyActions.fetchSuccess,
-          payload: result.data.stories,
+          payload: result.hits,
         });
       })
       .catch((error) => {
@@ -147,29 +125,14 @@ const App = () => {
           payload: error,
         });
       })
-    // setIsLoading(true);
-    // getAsyncStories()
-    //  .then(result => {
-    //   setIsLoading(false);
-    //   dispatchStories({
-    //     type: storyActions.setStory,
-    //     payload: result.data.stories
-    //   });
-    //  })
-    // .catch(() => {
-    //   setIsLoading(false);
-    //   setIsError(true);
-    // });
-  }, [])
+  }, [searchTerm])
+  
   const handleRemoveStory = (story) => {
     dispatchStories({
       type: storyActions.removeStory,
       payload: story,
     });
   };
-
-  const storiesSearched = stories.data.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div>
@@ -183,7 +146,7 @@ const App = () => {
       {stories.isLoading ? (
         <p>Loading...</p>
       ):(
-        !stories.errorMsg && <List name="Stock list" list={storiesSearched} onDelete={handleRemoveStory}/>
+        !stories.errorMsg && <List name="Story list" list={stories.data} onDelete={handleRemoveStory}/>
       )}
     </div>
   );
