@@ -45,68 +45,132 @@ const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
     <input id={id} type={type} value={value} onChange={onInputChange} />
   </>
 )
+
+const initialStories = [
+  {
+    title: 'React',
+    url: 'https://reactjs.org/',
+    author: 'Jordan Walke',
+    num_comments: 3,
+    points: 4,
+    objectID: 0,
+  },
+  {
+    title: 'Redux',
+    url: 'https://redux.js.org/',
+    author: 'Dan Abramov, Andrew Clark',
+    num_comments: 2,
+    points: 5,
+    objectID: 1,
+  },
+];
+// const getAsyncStories = () =>
+//   new Promise((resolve, reject) => setTimeout(() => reject("Intentional error."), 2000));
+const getAsyncStories = () => 
+new Promise((resolve) => 
+  setTimeout(
+    () => resolve({data: { stories: initialStories}}),
+    2000
+  )
+);
+
+const storyActions = {
+  fetchInit: "FETCH_INIT",
+  fetchSuccess: "FETCH_SUCCESS",
+  fetchFailure: "FETCH_FAILURE",
+  removeStory: "REMOVE_STORY",
+};
+const storiesReducer = (state, action) => {
+  switch(action.type) {
+    case storyActions.fetchInit:
+      return {
+        ...state,
+        isLoading: true,
+        errorMsg: null,
+      };
+    case storyActions.fetchSuccess:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: null,
+        data: action.payload,
+      };
+    case storyActions.fetchFailure:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+        data: []
+      };
+    case storyActions.removeStory:
+      return {
+        ...state,
+        data: state.data.filter(
+          (story) => action.payload.objectID != story.objectID
+        ),
+      };
+    default:
+      throw new Error(`Unexpected action.type ${action.type}`);
+    // case storyActions.setStory:
+    //   return action.payload;
+    // case storyActions.removeStory:
+    //   return state.filter((s) => s.objectID != action.payload.objectID);
+  }
+}
+
 const App = () => {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isError, setIsError] = React.useState(false);
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const initStories = [
+  const [stories, dispatchStories] = React.useReducer(
+    storiesReducer,
     {
-      title: 'React',
-      url: 'https://reactjs.org/',
-      author: 'Jordan Walke',
-      num_comments: 3,
-      points: 4,
-      objectID: 0,
-    },
-    {
-      title: 'Redux',
-      url: 'https://redux.js.org/',
-      author: 'Dan Abramov, Andrew Clark',
-      num_comments: 2,
-      points: 5,
-      objectID: 1,
-    },
-  ];
-  const getAsyncStories = () => 
-    new Promise((resolve) => 
-      setTimeout(
-        () => resolve({data: { stories: initStories}}),
-        2000
-      )
-    );
-    
-  const [stories, setStories] = React.useState([]);
+      data: [],
+      isLoading: false,
+      errorMsg: null,
+    }
+  );
   React.useEffect(() => {
-    setIsLoading(true);
+    dispatchStories({type: storyActions.fetchInit});
     getAsyncStories()
-     .then(result => {
-      setStories(result.data.stories);
-      setIsLoading(false)
-     })
-    .catch(() => setIsError(true));
+      .then((result) => {
+        dispatchStories({
+          type: storyActions.fetchSuccess,
+          payload: result.data.stories,
+        });
+      })
+      .catch((error) => {
+        dispatchStories({
+          type: storyActions.fetchFailure,
+          payload: error,
+        });
+      })
+    // setIsLoading(true);
+    // getAsyncStories()
+    //  .then(result => {
+    //   setIsLoading(false);
+    //   dispatchStories({
+    //     type: storyActions.setStory,
+    //     payload: result.data.stories
+    //   });
+    //  })
+    // .catch(() => {
+    //   setIsLoading(false);
+    //   setIsError(true);
+    // });
   }, [])
-
-
-  const handleDelete = (story) => {
-    setStories(stories.filter((s) => s.objectID != story.objectID));
+  const handleRemoveStory = (story) => {
+    dispatchStories({
+      type: storyActions.removeStory,
+      payload: story,
+    });
   };
 
-  const storiesSearched = stories.filter((story) =>
+  const storiesSearched = stories.data.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase()));
-  // const storiesMine = [
-  //   {
-  //     title: "Another book",
-  //     url: "https://www.example.com",
-  //     author: "ME",
-  //     num_comments: 0,
-  //     points: 0,
-  //     objectID: 2,
-  //   },
-  // ];
+
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
@@ -115,13 +179,12 @@ const App = () => {
           <strong>Search</strong>:
       </InputWithLabel>
       <hr/>
-      {isError && <p>Something went wrong...</p>}
-      {isLoading ? (
+      {stories.errorMsg && <p>Error fetching stories: {stories.errorMsg}</p>}
+      {stories.isLoading ? (
         <p>Loading...</p>
       ):(
-        <List name="Stock list" list={storiesSearched} onDelete={handleDelete}/>
+        !stories.errorMsg && <List name="Stock list" list={storiesSearched} onDelete={handleRemoveStory}/>
       )}
-      {/* <List name="My List" listParam={storiesMine}/> */}
     </div>
   );
 }
