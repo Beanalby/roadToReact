@@ -112,23 +112,22 @@ const App = () => {
       errorMsg: null,
     }
   );
-  const handleFetchStories = React.useCallback(() => {
+  const handleFetchStories = React.useCallback(async () => {
     if(!searchTerm)
       return;
     dispatchStories({type: storyActions.fetchInit});
-    axios.get(url)
-      .then((result) => {
-        dispatchStories({
-          type: storyActions.fetchSuccess,
-          payload: result.data.hits,
-        });
-      })
-      .catch((error) => {
-        dispatchStories({
-          type: storyActions.fetchFailure,
-          payload: error,
-        });
-      })
+    try {
+      const result = await axios.get(url);
+      dispatchStories({
+        type: storyActions.fetchSuccess,
+        payload: result.data.hits,
+      });
+    } catch(error) {
+      dispatchStories({
+        type: storyActions.fetchFailure,
+        payload: error,
+      });
+    }
   }, [url])
   React.useEffect(() => {
     handleFetchStories();
