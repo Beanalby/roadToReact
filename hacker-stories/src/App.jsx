@@ -30,14 +30,16 @@ const Item = ({item, onDelete}) => (
   </div>
 )
 
-const List = React.memo( ({name, list, onDelete}) => (
-  <div>
-    <h3>{name}:</h3>
-    {list.map(item =>
-      <Item key={item.objectID} item={item} onDelete={onDelete}/>
-    )}
-  </div>
-))
+const List = React.memo(function ListMemo({name, list, onDelete}) {
+  return (
+    <div>
+      <h3>{name}:</h3>
+      {list.map(item =>
+        <Item key={item.objectID} item={item} onDelete={onDelete}/>
+      )}
+    </div>
+  );
+});
 
 const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
   <>
@@ -110,6 +112,13 @@ const SearchForm = ({
   </form>
 );
 
+const getSumComments = (stories) => {
+  return stories.data.reduce(
+    (result, value) => result + value.num_comments,
+    0
+  );
+};
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const handleSearchInput = (event) => {
@@ -157,9 +166,14 @@ const App = () => {
     });
   }, []);
 
+  const sumComments = React.useMemo(
+    () => getSumComments(stories),
+    [stories]
+  );
+
   return (
     <div>
-      <h1>{welcome.greeting} {welcome.title}!</h1>
+      <h1>{welcome.greeting} {welcome.title}, with {sumComments} comments!</h1>
       <SearchForm searchTerm={searchTerm}
         onSearchInput={handleSearchInput}
         onSearchSubmit={handleSearchSubmit}
