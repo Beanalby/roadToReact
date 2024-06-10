@@ -95,9 +95,13 @@ const storiesReducer = (state, action) => {
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
-  const handleSearch = (event) => {
+  const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
   };
+  const [url, setUrl] = React.useState(makeApiEndpoint(searchTerm));
+  const handleSearchSubmit = () => {
+    setUrl(makeApiEndpoint(searchTerm));
+  }
 
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
@@ -107,11 +111,11 @@ const App = () => {
       errorMsg: null,
     }
   );
-  React.useEffect(() => {
+  const handleFetchStories = React.useCallback(() => {
     if(!searchTerm)
       return;
     dispatchStories({type: storyActions.fetchInit});
-    fetch(makeApiEndpoint(searchTerm))
+    fetch(url)
       .then((response)=> response.json())
       .then((result) => {
         dispatchStories({
@@ -125,8 +129,11 @@ const App = () => {
           payload: error,
         });
       })
-  }, [searchTerm])
-  
+  }, [url])
+  React.useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
+
   const handleRemoveStory = (story) => {
     dispatchStories({
       type: storyActions.removeStory,
@@ -138,9 +145,12 @@ const App = () => {
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
       <InputWithLabel id="search"
-        value={searchTerm} onInputChange={handleSearch}>
+        value={searchTerm} onInputChange={handleSearchInput}>
           <strong>Search</strong>:
       </InputWithLabel>
+      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>
+        Search
+      </button>
       <hr/>
       {stories.errorMsg && <p>Error fetching stories: {stories.errorMsg}</p>}
       {stories.isLoading ? (
