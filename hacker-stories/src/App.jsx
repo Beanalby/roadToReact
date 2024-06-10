@@ -1,4 +1,5 @@
 import * as React from 'react';
+import axios from "axios";
 if(import.meta.hot) { import.meta.hot.dispose(() => { console.clear(); })}
 
 const welcome = {
@@ -115,12 +116,11 @@ const App = () => {
     if(!searchTerm)
       return;
     dispatchStories({type: storyActions.fetchInit});
-    fetch(url)
-      .then((response)=> response.json())
+    axios.get(url)
       .then((result) => {
         dispatchStories({
           type: storyActions.fetchSuccess,
-          payload: result.hits,
+          payload: result.data.hits,
         });
       })
       .catch((error) => {
