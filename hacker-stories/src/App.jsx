@@ -94,13 +94,30 @@ const storiesReducer = (state, action) => {
   }
 }
 
+const SearchForm = ({
+  searchTerm,
+  onSearchInput,
+  onSearchSubmit,
+}) => (
+  <form onSubmit={onSearchSubmit}>
+  <InputWithLabel id="search"
+    value={searchTerm} onInputChange={onSearchInput}>
+      <strong>Search</strong>:
+  </InputWithLabel>
+  <button type="submit" disabled={!searchTerm}>
+    Search
+  </button>
+  </form>
+);
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
   const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
   };
   const [url, setUrl] = React.useState(makeApiEndpoint(searchTerm));
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
     setUrl(makeApiEndpoint(searchTerm));
   }
 
@@ -143,13 +160,10 @@ const App = () => {
   return (
     <div>
       <h1>{welcome.greeting} {welcome.title}!</h1>
-      <InputWithLabel id="search"
-        value={searchTerm} onInputChange={handleSearchInput}>
-          <strong>Search</strong>:
-      </InputWithLabel>
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>
-        Search
-      </button>
+      <SearchForm searchTerm={searchTerm}
+        onSearchInput={handleSearchInput}
+        onSearchSubmit={handleSearchSubmit}
+      />
       <hr/>
       {stories.errorMsg && <p>Error fetching stories: {stories.errorMsg}</p>}
       {stories.isLoading ? (
