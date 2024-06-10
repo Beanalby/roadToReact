@@ -4,7 +4,10 @@ import App from './App.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  <>
+  {/* Not using StrictMode while playing with performance/re-rendering */}
+  {/* <React.StrictMode> */}
     <App />
-  </React.StrictMode>,
+  {/* </React.StrictMode>, */}
+  </>
 )

@@ -17,18 +17,21 @@ const useLocalStorage = (storageKey, fallbackState) => {
   }, [value, storageKey]);
   return [value, setValue];
 }
-
-const Item = ({item, onDelete}) => (
-  <div style={{clear: "both"}}>
-    <button style={{marginTop: "1.2em", float: "left"}} onClick={() => onDelete(item)}>Delete</button>
-    <ul style={{float: "left"}}>
-      <li>Title: <a href={item.url}>{item.title}</a></li>
-      <li>Author: {item.author}</li>
-      <li>Comments: {item.num_comments}</li>
-      <li>Points: {item.points}</li>
-    </ul>
-  </div>
-)
+const Item = React.memo(({item, onDelete}) =>  {
+  console.log(`+++ itemRender for ${item.url}`);
+  // await new Promise(r => setTimeout(r, 500));
+  return (
+    <div style={{clear: "both"}}>
+      <button style={{marginTop: "1.2em", float: "left"}} onClick={() => onDelete(item)}>Delete</button>
+      <ul style={{float: "left"}}>
+        <li>Title: <a href={item.url}>{item.title}</a></li>
+        <li>Author: {item.author}</li>
+        <li>Comments: {item.num_comments}</li>
+        <li>Points: {item.points}</li>
+      </ul>
+    </div>
+  );
+});
 
 const List = React.memo(function ListMemo({name, list, onDelete}) {
   return (
