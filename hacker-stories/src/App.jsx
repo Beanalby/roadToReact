@@ -96,11 +96,11 @@ const storiesReducer = (state, action) => {
   }
 }
 
-const SearchForm = ({
+const SearchForm = React.memo(({
   searchTerm,
   onSearchInput,
   onSearchSubmit,
-}) => (
+}) => console.log("+++ SearchForm rendering") || (
   <form onSubmit={onSearchSubmit}>
   <InputWithLabel id="search"
     value={searchTerm} onInputChange={onSearchInput}>
@@ -110,7 +110,7 @@ const SearchForm = ({
     Search
   </button>
   </form>
-);
+));
 
 const getSumComments = (stories) => {
   return stories.data.reduce(
@@ -121,14 +121,20 @@ const getSumComments = (stories) => {
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage("search", "");
-  const handleSearchInput = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  const handleSearchInput = React.useCallback(
+    (event) => {
+      setSearchTerm(event.target.value);
+    },
+    [setSearchTerm]
+  );
   const [url, setUrl] = React.useState(makeApiEndpoint(searchTerm));
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    setUrl(makeApiEndpoint(searchTerm));
-  }
+  const handleSearchSubmit = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      setUrl(makeApiEndpoint(searchTerm));
+    },
+    [searchTerm]
+  );
 
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
