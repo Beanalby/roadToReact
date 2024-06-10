@@ -30,14 +30,14 @@ const Item = ({item, onDelete}) => (
   </div>
 )
 
-const List = React.memo( ({name, list, onDelete}) => (
+const List = ({name, list, onDelete}) => (
   <div>
     <h3>{name}:</h3>
     {list.map(item =>
       <Item key={item.objectID} item={item} onDelete={onDelete}/>
     )}
   </div>
-))
+)
 
 const InputWithLabel = ({id, value, type="text", onInputChange, children }) => (
   <>
@@ -150,12 +150,12 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories]);
 
-  const handleRemoveStory = React.useCallback((story) => {
+  const handleRemoveStory = (story) => {
     dispatchStories({
       type: storyActions.removeStory,
       payload: story,
     });
-  }, []);
+  };
 
   return (
     <div>
